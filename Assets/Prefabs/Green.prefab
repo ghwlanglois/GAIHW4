@@ -53,7 +53,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1191917504261120}
   m_LocalRotation: {x: -0, y: -0, z: -0.9998805, w: 0.015460416}
-  m_LocalPosition: {x: -2.33, y: 10.06, z: 0}
+  m_LocalPosition: {x: 1.39, y: 11.79, z: 0}
   m_LocalScale: {x: 0.1, y: 0.1, z: 1}
   m_Children:
   - {fileID: 4429104512307064}
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   collisionType: 2
-  curState: 0
+  curState: 4
   target: {fileID: 0}
   path:
   - {fileID: 0}
@@ -133,12 +133,23 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   rotation_speed: 3
-  move_speed: 1
+  move_speed: 2
   slow_down_dist: 2
-  cone_angle: 60
-  cone_distance: 100
-  avoidanceForce: 100
+  cone_angle: 15
+  cone_distance: 2
+  avoidanceForce: 0.785
   num_whiskers: 4
 --- !u!212 &212648708408869450
 SpriteRenderer:

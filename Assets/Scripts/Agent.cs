@@ -95,10 +95,10 @@ public class Agent : MonoBehaviour {
     }
 
     void ShowLine(Vector3 t) {
-        ray = Camera.main.ScreenPointToRay(transform.position);
-        line.positionCount = 2;
-        line.SetPosition(0, new Vector3(transform.position.x, transform.position.y, 0));
-        line.SetPosition(1, new Vector3(t.x, t.y, 0));
+        //ray = Camera.main.ScreenPointToRay(transform.position);
+        //line.positionCount = 2;
+        //line.SetPosition(0, new Vector3(transform.position.x, transform.position.y, 0));
+        //line.SetPosition(1, new Vector3(t.x, t.y, 0));
     }
 
     void Wander() {
@@ -196,8 +196,9 @@ public class Agent : MonoBehaviour {
                 GameObject hit_agent = hit.collider.gameObject;
                 if (hit_agent.name[0] != this.name[0]) {
                     Debug.Log(string.Format("{0} avoiding {1}", this.name, hit_agent.name));
-                    RB.AddForce(((Vector2)hit_agent.transform.position-RB.velocity).normalized * avoidanceForce);
-                    return;
+                    RB.velocity = Vector3.RotateTowards(RB.velocity.normalized, Quaternion.AngleAxis(180, Vector3.forward) * (hit.point - RB.velocity).normalized, avoidanceForce, float.PositiveInfinity) * move_speed;
+                    Debug.DrawRay(transform.position, Quaternion.AngleAxis(180, Vector3.forward) * (hit.point - RB.velocity).normalized * avoidanceForce, Color.red, 10);
+                    
                 } else {
                     Debug.LogError("Raycast hit a non red agent");
                 }
