@@ -53,7 +53,7 @@ public class Agent : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-            DisplayText.text = curState.ToString();
+            //DisplayText.text = curState.ToString();
         
         switch (curState) {
             case State.wait:
@@ -190,10 +190,10 @@ public class Agent : MonoBehaviour {
 
         for (int i = 0; i < num_whiskers; ++i) {
             Debug.DrawRay(transform.position, direction.normalized*cone_distance, Color.white, 0);
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction,cone_distance);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, cone_distance, ~(1<<8));
             if (hit.collider !=null) {
                 Debug.LogWarning("Hit");
-                var hit_agent = hit.collider.GetComponent<Agent>();
+                GameObject hit_agent = hit.collider.gameObject;
                 if (hit_agent.name[0] != this.name[0]) {
                     Debug.Log(string.Format("{0} avoiding {1}", this.name, hit_agent.name));
                     RB.AddForce(((Vector2)hit_agent.transform.position-RB.velocity).normalized * avoidanceForce);
@@ -201,6 +201,8 @@ public class Agent : MonoBehaviour {
                 } else {
                     Debug.LogError("Raycast hit a non red agent");
                 }
+            } else {
+                Debug.Log("No Hit");
             }
 
             direction = step_angle * direction;
