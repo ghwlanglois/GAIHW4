@@ -36,6 +36,9 @@ public class Flock : MonoBehaviour {
 		if (liveUpdate) {
             Updateformation();
         }
+        if (state == State.Emergent) {
+            CalculateLeaderSpeed();
+        }
 	}
 
     void SetState(State s) {
@@ -61,6 +64,10 @@ public class Flock : MonoBehaviour {
     }
 
     void FillStaticSpots() {
+
+    }
+
+    void BuildScalable() {
         int count = flock.Length;
         Vector2 radius = leader.GetForwardVector()*(count*separationDist/2*Mathf.PI);
         Vector2 center = (Vector2)leader.transform.position - radius;
@@ -79,12 +86,41 @@ public class Flock : MonoBehaviour {
         leader.SetMaxSpeed(Mathf.Max(flockSpeed-maxDist/5f*flockSpeed,flockSpeed*.1f));
     }
 
-    void BuildScalable() {
+    void SetEmergentLeader() {
+        Agent leftmost = leader;
+        Agent rightmost = leader;
+        int dir = -1;
+        foreach (Agent a in flock) {
+            if (a == leader) {
+                continue;
+            }
+            if (dir < 0) {
+                a.followTarget = leftmost.transform;
+                a.followDirection = dir;
+                leftmost = a;
+                dir = 1;
+            } else {
+                a.followTarget = rightmost.transform;
+                a.followDirection = dir;
+                rightmost = a;
+                dir = -1;
+            }
 
+        }
     }
 
-    void SetEmergentLeader() {
-
+    void CalculateLeaderSpeed() {
+      
+        float maxDist = 0f;
+        foreach (Agent a in flock) {
+            if (a == leader) {
+                continue;
+            }
+            if (a.flockDistance > maxDist) {
+                maxDist = a.flockDistance;
+            }
+        }
+        leader.SetMaxSpeed(Mathf.Max(flockSpeed - maxDist / 5f * flockSpeed, flockSpeed * .1f));
     }
 
     void BuildMultiLevel() {

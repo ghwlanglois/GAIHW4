@@ -31,6 +31,8 @@ public class Agent : MonoBehaviour {
     public float cone_distance;
     public float avoidanceForce;
     public int num_whiskers;
+    public Transform followTarget = null;
+    public int followDirection = 0;
 
     SpriteRenderer circle;
     LineRenderer line;
@@ -43,6 +45,8 @@ public class Agent : MonoBehaviour {
     Vector3 dir = Vector3.zero;
 
     Rigidbody2D RB;
+
+    public float flockDistance = 0;
 
     // Use this for initialization
     void Start() {
@@ -167,15 +171,24 @@ public class Agent : MonoBehaviour {
                 minI = i;
             }
         }
-        ShowLine(path[minI + 1].position + (Vector3)targetOffset);
+        
         if (minI < path.Length - 1) {
             //Check if within range of path point to move to next point
-            float distance = Vector2.Distance(path[minI + 1].position+(Vector3)targetOffset, transform.position);
+            Vector3 targetPoint = path[minI + 1].position;
+            float distance = distance = Vector2.Distance(target.position, transform.position);
 
-            distance = Vector2.Distance(target.position, transform.position);
+            if (followTarget != null) {
+                targetPoint = followTarget.position - followTarget.right * GetComponentInParent<Flock>().separationDist - followTarget.up * followDirection * GetComponentInParent<Flock>().separationDist/2;
+                flockDistance = Vector3.Distance(targetPoint, transform.position);
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, targetPoint-transform.position, Vector3.Distance(targetPoint, transform.position), ~(1 << 8));
+                if (hit.collider != null && hit.collider.gameObject.name[0] != this.name[0]) {
+                    targetPoint = path[minI+1].position;
+                }
+            }
+            Debug.DrawRay(transform.position, targetPoint - transform.position, Color.blue, 0);
 
-            RB.velocity = (path[minI + 1].position - transform.position+ (Vector3)targetOffset).normalized * move_speed * Mathf.Min(distance / slow_down_dist, 1);
-            RotateTowards(path[minI + 1].position+(Vector3)targetOffset);
+            RB.velocity = (targetPoint - transform.position + (Vector3)targetOffset).normalized * move_speed * Mathf.Min(distance / slow_down_dist, 1);
+            RotateTowards(targetPoint+(Vector3)targetOffset);
         } else {
             Debug.Log(path[minI].name);
             SetTarget(path[path.Length - 1]);
