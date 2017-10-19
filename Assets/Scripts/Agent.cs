@@ -219,7 +219,8 @@ public class Agent : MonoBehaviour {
             Vector2 pt = (Vector2)a.transform.position + a.RB.velocity * t;
             if (Vector2.Distance(pc, pt) < 2 * transform.localScale.x) {
                 Debug.Log(string.Format("{0} avoiding {1}", this.name, a.name));
-                RB.AddForce((RB.velocity - pc).normalized * avoidanceForce);
+                //RB.AddForce((RB.velocity - pc).normalized * avoidanceForce);
+                RB.velocity = Vector3.RotateTowards(RB.velocity.normalized, Quaternion.AngleAxis(180, Vector3.forward) * (RB.velocity - pc).normalized, avoidanceForce, float.PositiveInfinity) * move_speed;
                 return;
             }
         }
