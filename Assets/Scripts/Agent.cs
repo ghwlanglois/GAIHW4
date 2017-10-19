@@ -17,8 +17,7 @@ public class Agent : MonoBehaviour {
     public enum CollisionType {
         none,
         collisionPredict,
-        coneCheck,
-        both
+        coneCheck
     }
 
     public CollisionType collisionType;
@@ -89,10 +88,6 @@ public class Agent : MonoBehaviour {
                 case CollisionType.coneCheck:
                     ConeCheck();
                     break;
-                case CollisionType.both:
-                    PredictCollision();
-                    ConeCheck();
-                    break;
             }
         }
     }
@@ -151,10 +146,6 @@ public class Agent : MonoBehaviour {
                 PredictCollision();
                 break;
             case CollisionType.coneCheck:
-                ConeCheck();
-                break;
-            case CollisionType.both:
-                PredictCollision();
                 ConeCheck();
                 break;
         }
@@ -234,12 +225,12 @@ public class Agent : MonoBehaviour {
 
         for (int i = 0; i < num_whiskers; ++i) {
             Debug.DrawRay(transform.position, direction.normalized*cone_distance, Color.white, 0);
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, cone_distance, ~(1<<8));
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, cone_distance, ~(1<<11));
             if (hit.collider != null)
             {
                 Debug.Log("Hit");
                 GameObject hit_agent = hit.collider.gameObject;
-                if (hit_agent.name[0] != this.name[0]) {
+                if (hit_agent.name != this.name) {
                     if (curState == State.formation) {
                         StopAllCoroutines();
                         StartCoroutine(PathAndFormate());
