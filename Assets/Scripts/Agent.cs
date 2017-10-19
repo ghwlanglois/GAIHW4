@@ -17,7 +17,8 @@ public class Agent : MonoBehaviour {
     public enum CollisionType {
         none,
         collisionPredict,
-        coneCheck
+        coneCheck,
+        both
     }
 
     public CollisionType collisionType;
@@ -88,6 +89,10 @@ public class Agent : MonoBehaviour {
                 case CollisionType.coneCheck:
                     ConeCheck();
                     break;
+                case CollisionType.both:
+                    PredictCollision();
+                    ConeCheck();
+                    break;
             }
         }
     }
@@ -148,6 +153,10 @@ public class Agent : MonoBehaviour {
             case CollisionType.coneCheck:
                 ConeCheck();
                 break;
+            case CollisionType.both:
+                PredictCollision();
+                ConeCheck();
+                break;
         }
 
         return distance;
@@ -201,7 +210,7 @@ public class Agent : MonoBehaviour {
 
     void PredictCollision() {
         foreach (Agent a in GameManager.INSTANCE.Agents) {
-            if (a.name[0] == this.name[0]) continue;
+            if (a.name == this.name) continue;
             Vector2 dp = a.transform.position - transform.position;
             Vector2 dv = a.RB.velocity - RB.velocity;
             float t = -1 * Vector2.Dot(dp, dv) / Mathf.Pow(dv.magnitude, 2);
@@ -225,9 +234,10 @@ public class Agent : MonoBehaviour {
         for (int i = 0; i < num_whiskers; ++i) {
             Debug.DrawRay(transform.position, direction.normalized*cone_distance, Color.white, 0);
             RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, cone_distance, ~(1<<8));
-            if (hit.collider != null) {
+            if (hit.collider != null)
+            {
+                Debug.Log("Hit");
                 GameObject hit_agent = hit.collider.gameObject;
-                Debug.Log(hit_agent.name[0]);
                 if (hit_agent.name[0] != this.name[0]) {
                     if (curState == State.formation) {
                         StopAllCoroutines();

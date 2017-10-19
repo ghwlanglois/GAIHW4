@@ -139,7 +139,7 @@ MonoBehaviour:
   slow_down_dist: 2
   cone_angle: 15
   cone_distance: 2
-  avoidanceForce: 0.785
+  avoidanceForce: 1
   num_whiskers: 4
   followTarget: {fileID: 0}
   followDirection: 0
