@@ -187,7 +187,7 @@ public class Agent : MonoBehaviour {
             }
             Debug.DrawRay(transform.position, targetPoint - transform.position, Color.blue, 0);
 
-            RB.velocity = (targetPoint - transform.position + (Vector3)targetOffset).normalized * move_speed * Mathf.Min(distance / slow_down_dist, 1);
+            RB.velocity = (targetPoint - transform.position + (Vector3)targetOffset).normalized * move_speed * Mathf.Min(flockDistance!=0?flockDistance:distance / slow_down_dist, 1);
             RotateTowards(targetPoint+(Vector3)targetOffset);
         } else {
             Debug.Log(path[minI].name);
