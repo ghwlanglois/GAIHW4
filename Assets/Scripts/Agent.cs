@@ -71,6 +71,8 @@ public class Agent : MonoBehaviour {
             case State.path:
                 FollowPath();
                 break;
+            case State.formation:
+                break;
             default:
                 Debug.LogError(string.Format("{0} is not a valid state", curState));
                 SetState(State.wait);
@@ -135,7 +137,7 @@ public class Agent : MonoBehaviour {
         float distance = Vector2.Distance(t, transform.position);
         
         RotateTowards(t);
-        RB.velocity = (t - (Vector2)transform.position).normalized * move_speed * Mathf.Min(distance / slow_down_dist, 1);
+        RB.velocity = (t - (Vector2)transform.position).normalized * move_speed ;
 
         switch (collisionType) {
             case CollisionType.collisionPredict:
@@ -146,7 +148,7 @@ public class Agent : MonoBehaviour {
                 break;
         }
 
-        return RB.velocity.magnitude;
+        return distance;
     }
 
     void Evade() {
@@ -216,21 +218,29 @@ public class Agent : MonoBehaviour {
                 Debug.LogWarning("Hit");
                 GameObject hit_agent = hit.collider.gameObject;
                 if (hit_agent.name[0] != this.name[0]) {
+                    if (curState == State.formation) {
+                        StopAllCoroutines();
+                        StartCoroutine(PathAndFormate());
+                        return;
+                    }
                     Debug.Log(string.Format("{0} avoiding {1}", this.name, hit_agent.name));
                     RB.velocity = Vector3.RotateTowards(RB.velocity.normalized, Quaternion.AngleAxis(180, Vector3.forward) * (hit.point - RB.velocity).normalized, avoidanceForce, float.PositiveInfinity) * move_speed;
                     Debug.DrawRay(transform.position, Quaternion.AngleAxis(180, Vector3.forward) * (hit.point - RB.velocity).normalized * avoidanceForce, Color.red, 10);
                     
-                } else {
-                    Debug.LogError("Raycast hit a non red agent");
-                }
-            } else {
-                Debug.Log("No Hit");
-            }
+                } 
+            } 
 
             direction = step_angle * direction;
         }
     }
 
+    IEnumerator PathAndFormate() {
+        SetState(State.path);
+        Debug.Log("Pathing");
+        yield return new WaitForSeconds(1f);
+        SetState(State.formation);
+    }
+    
     float ApproxDistanceBetween(Agent a, Agent b) {
         float angle = Vector2.Angle(a.RB.velocity, b.RB.velocity)*Mathf.Rad2Deg;
         return angle - Vector2.Distance(a.transform.position, b.transform.position);
@@ -238,5 +248,9 @@ public class Agent : MonoBehaviour {
 
     public Vector2 GetForwardVector() {
         return transform.right;
+    }
+
+    public void SetMaxSpeed(float s) {
+        move_speed = s;
     }
 }

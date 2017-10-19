@@ -20,6 +20,11 @@ public class Flock : MonoBehaviour {
 
     [Header("Helpers")]
     public float separationDist = 2f;
+    float flockSpeed = 1f;
+
+    private void Awake() {
+        flockSpeed = leader.move_speed;
+    }
 
     // Use this for initialization
     void Start () {
@@ -60,14 +65,18 @@ public class Flock : MonoBehaviour {
         Vector2 radius = leader.GetForwardVector()*(count*separationDist/2*Mathf.PI);
         Vector2 center = (Vector2)leader.transform.position - radius;
         Quaternion rot = Quaternion.AngleAxis(360f / count, Vector3.forward);
+        float maxDist = 0f;
         foreach (Agent a in flock) {
-            if (a == leader) {
+            if (a == leader || a.curState != Agent.State.formation) {
                 continue;
             }
             radius = rot * radius;
-            Debug.Log(radius);
-            a.Formate(center + radius);
+            float tmp = a.Formate(center + radius);
+            if (tmp > maxDist) {
+                maxDist = tmp;
+            }
         }
+        leader.SetMaxSpeed(Mathf.Max(flockSpeed-maxDist/5f*flockSpeed,flockSpeed*.1f));
     }
 
     void BuildScalable() {
