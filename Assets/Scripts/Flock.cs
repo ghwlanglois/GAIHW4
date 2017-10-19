@@ -124,6 +124,20 @@ public class Flock : MonoBehaviour {
     }
 
     void BuildMultiLevel() {
-
+        int count = flock.Length;
+        Vector2 radius = leader.GetComponent<Agent>().GetForwardVector() * (count * separationDist / 2 * Mathf.PI);
+        Vector2 center = (Vector2)leader.transform.position;
+        Quaternion rot = Quaternion.AngleAxis(360f / count, Vector3.forward);
+        float maxDist = 0f;
+        foreach (Agent a in flock) {
+            if (a == leader || a.curState != Agent.State.formation) {
+                continue;
+            }
+            radius = rot * radius;
+            float tmp = a.Formate(center + radius);
+            if (tmp > maxDist) {
+                maxDist = tmp;
+            }
+        }
     }
 }
