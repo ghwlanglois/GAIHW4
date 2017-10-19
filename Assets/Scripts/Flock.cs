@@ -29,7 +29,9 @@ public class Flock : MonoBehaviour {
     // Use this for initialization
     void Start () {
         Updateformation();
-	}
+        leader.DisplayText.text = state.ToString();
+
+    }
 	
 	// Update is called once per frame
 	void Update () {

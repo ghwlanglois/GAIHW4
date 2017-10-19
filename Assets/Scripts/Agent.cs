@@ -38,7 +38,7 @@ public class Agent : MonoBehaviour {
     LineRenderer line;
     Ray ray;
     private Vector3 startVertex;
-    Text DisplayText;
+    public Text DisplayText;
     Transform wander_target;
     int path_index = 0;
     Vector2 targetOffset = Vector2.zero;
@@ -57,9 +57,7 @@ public class Agent : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
-            //DisplayText.text = curState.ToString();
-        
+    void Update() { 
         switch (curState) {
             case State.wait:
                 break;
@@ -227,9 +225,9 @@ public class Agent : MonoBehaviour {
         for (int i = 0; i < num_whiskers; ++i) {
             Debug.DrawRay(transform.position, direction.normalized*cone_distance, Color.white, 0);
             RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, cone_distance, ~(1<<8));
-            if (hit.collider !=null) {
-                Debug.LogWarning("Hit");
+            if (hit.collider != null) {
                 GameObject hit_agent = hit.collider.gameObject;
+                Debug.Log(hit_agent.name[0]);
                 if (hit_agent.name[0] != this.name[0]) {
                     if (curState == State.formation) {
                         StopAllCoroutines();
@@ -240,8 +238,8 @@ public class Agent : MonoBehaviour {
                     RB.velocity = Vector3.RotateTowards(RB.velocity.normalized, Quaternion.AngleAxis(180, Vector3.forward) * (hit.point - RB.velocity).normalized, avoidanceForce, float.PositiveInfinity) * move_speed;
                     Debug.DrawRay(transform.position, Quaternion.AngleAxis(180, Vector3.forward) * (hit.point - RB.velocity).normalized * avoidanceForce, Color.red, 10);
                     
-                } 
-            } 
+                }
+            }
 
             direction = step_angle * direction;
         }
