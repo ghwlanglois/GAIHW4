@@ -11,22 +11,34 @@ public class Flock : MonoBehaviour {
         MultiLevel
     }
 
-    State state = State.Static;
+    public bool liveUpdate = false;
 
-    public GameObject leader;
+    public State state = State.Static;
+
+    public Agent leader;
+    public Agent[] flock;
+
+    [Header("Helpers")]
+    public float separationDist = 2f;
 
     // Use this for initialization
     void Start () {
-		
+        Updateformation();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if (liveUpdate) {
+            Updateformation();
+        }
 	}
 
     void SetState(State s) {
         state = s;
+        Updateformation();
+    }
+
+    void Updateformation() {
         switch (state) {
             case State.Static:
                 FillStaticSpots();
@@ -44,7 +56,18 @@ public class Flock : MonoBehaviour {
     }
 
     void FillStaticSpots() {
-
+        int count = flock.Length;
+        Vector2 radius = leader.GetForwardVector()*(count*separationDist/2*Mathf.PI);
+        Vector2 center = (Vector2)leader.transform.position - radius;
+        Quaternion rot = Quaternion.AngleAxis(360f / count, Vector3.forward);
+        foreach (Agent a in flock) {
+            if (a == leader) {
+                continue;
+            }
+            radius = rot * radius;
+            Debug.Log(radius);
+            a.Formate(center + radius);
+        }
     }
 
     void BuildScalable() {

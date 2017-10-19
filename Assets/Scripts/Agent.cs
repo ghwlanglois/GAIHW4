@@ -10,7 +10,8 @@ public class Agent : MonoBehaviour {
         wander,
         pursue,
         evade,
-        path
+        path,
+        formation
     }
     
     public enum CollisionType {
@@ -75,13 +76,15 @@ public class Agent : MonoBehaviour {
                 SetState(State.wait);
                 break;
         }
-        switch (collisionType) {
-            case CollisionType.collisionPredict:
-                PredictCollision();
-                break;
-            case CollisionType.coneCheck:
-                ConeCheck();
-                break;
+        if (curState != State.formation) {
+            switch (collisionType) {
+                case CollisionType.collisionPredict:
+                    PredictCollision();
+                    break;
+                case CollisionType.coneCheck:
+                    ConeCheck();
+                    break;
+            }
         }
     }
 
@@ -126,6 +129,24 @@ public class Agent : MonoBehaviour {
         else {
             RB.velocity = Vector3.zero;
         }
+    }
+
+    public float Formate(Vector2 t) {
+        float distance = Vector2.Distance(t, transform.position);
+        
+        RotateTowards(t);
+        RB.velocity = (t - (Vector2)transform.position).normalized * move_speed * Mathf.Min(distance / slow_down_dist, 1);
+
+        switch (collisionType) {
+            case CollisionType.collisionPredict:
+                PredictCollision();
+                break;
+            case CollisionType.coneCheck:
+                ConeCheck();
+                break;
+        }
+
+        return RB.velocity.magnitude;
     }
 
     void Evade() {
@@ -213,5 +234,9 @@ public class Agent : MonoBehaviour {
     float ApproxDistanceBetween(Agent a, Agent b) {
         float angle = Vector2.Angle(a.RB.velocity, b.RB.velocity)*Mathf.Rad2Deg;
         return angle - Vector2.Distance(a.transform.position, b.transform.position);
+    }
+
+    public Vector2 GetForwardVector() {
+        return transform.right;
     }
 }
