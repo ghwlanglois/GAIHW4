@@ -41,6 +41,9 @@ public class Flock : MonoBehaviour {
         if (state == State.Emergent) {
             CalculateLeaderSpeed();
         }
+        if (leader.curState == Agent.State.pursue) {
+            Destroy(this.gameObject);
+        }
 	}
 
     void SetState(State s) {

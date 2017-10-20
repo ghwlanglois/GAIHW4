@@ -139,15 +139,14 @@ public class Agent : MonoBehaviour {
         float distance = Vector2.Distance(t, transform.position);
         
         RotateTowards(t);
-        RB.velocity = (t - (Vector2)transform.position).normalized * move_speed ;
+        RB.velocity = (t - (Vector2)transform.position).normalized * move_speed * Mathf.Min(distance / slow_down_dist, 1);
 
         switch (collisionType) {
             case CollisionType.collisionPredict:
                 PredictCollision();
                 break;
             case CollisionType.coneCheck:
-                ConeCheck();
-                break;
+                return ConeCheck() ? 0 : distance;
         }
 
         return distance;
@@ -163,7 +162,7 @@ public class Agent : MonoBehaviour {
     void FollowPath() {
         float minDist = float.MaxValue;
         int minI = 0; ;
-        for (int i = 0; i < path.Length; i++ ) {
+        for (int i = 0; i < path.Length; i++) {
             if (minDist > Vector2.Distance(path[i].position, transform.position)) {
                 minDist = Vector2.Distance(path[i].position, transform.position);
                 minI = i;
@@ -217,7 +216,7 @@ public class Agent : MonoBehaviour {
         }
     }
 
-    void ConeCheck() {
+    bool ConeCheck() {
         
         Quaternion start_angle = Quaternion.AngleAxis(-1*cone_angle / 2, transform.forward);
         Quaternion step_angle = Quaternion.AngleAxis(cone_angle / num_whiskers, transform.forward);
@@ -225,7 +224,7 @@ public class Agent : MonoBehaviour {
 
         for (int i = 0; i < num_whiskers; ++i) {
             Debug.DrawRay(transform.position, direction.normalized*cone_distance, Color.white, 0);
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, cone_distance, ~(1<<11));
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, cone_distance, ~((1<<11)+(1<<8)));
             if (hit.collider != null)
             {
                 Debug.Log("Hit");
@@ -234,7 +233,7 @@ public class Agent : MonoBehaviour {
                     if (curState == State.formation) {
                         StopAllCoroutines();
                         StartCoroutine(PathAndFormate());
-                        return;
+                        return true;
                     }
                     Debug.Log(string.Format("{0} avoiding {1}", this.name, hit_agent.name));
                     RB.velocity = Vector3.RotateTowards(RB.velocity.normalized, Quaternion.AngleAxis(180, Vector3.forward) * (hit.point - RB.velocity).normalized, avoidanceForce, float.PositiveInfinity) * move_speed;
@@ -245,6 +244,7 @@ public class Agent : MonoBehaviour {
 
             direction = step_angle * direction;
         }
+        return false;
     }
 
     IEnumerator PathAndFormate() {

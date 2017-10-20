@@ -6,6 +6,10 @@ public class GameManager : MonoBehaviour {
 
     public static GameManager INSTANCE;
 
+    public float delay = 10f;
+    public GameObject emergent;
+    public GameObject multiLevel;
+
     Agent[] agents;
 
     public Agent[] Agents {
@@ -22,5 +26,13 @@ public class GameManager : MonoBehaviour {
         INSTANCE = this;
         Agents = FindObjectsOfType<Agent>();
         Debug.Log(Agents.Length);
+        StartCoroutine(WaitAndSpawnFlocks());
 	}
+
+    IEnumerator WaitAndSpawnFlocks() {
+        yield return new WaitForSeconds(delay);
+        emergent.SetActive(true);
+        yield return new WaitForSeconds(delay);
+        multiLevel.SetActive(true);
+    }
 }
