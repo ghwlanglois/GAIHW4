@@ -16,11 +16,13 @@ public class Flock : MonoBehaviour {
     public State state = State.Static;
 
     public Agent leader;
-    public Agent[] flock;
+    public Agent[] flockArray;
 
     [Header("Helpers")]
     public float separationDist = 2f;
     float flockSpeed = 1f;
+
+    List<Agent> flockList;
 
     private void Awake() {
         flockSpeed = leader.move_speed;
@@ -28,6 +30,8 @@ public class Flock : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        flockList = new List<Agent>(flockArray);
+        Debug.Log(flockList.Count);
         Updateformation();
         leader.DisplayText.text = state.ToString();
 
@@ -73,13 +77,13 @@ public class Flock : MonoBehaviour {
     }
 
     void BuildScalable() {
-        int count = flock.Length;
+        int count = flockList.Count;
         Vector2 radius = leader.GetForwardVector()*(count*separationDist/2*Mathf.PI);
         Vector2 center = (Vector2)leader.transform.position - radius;
         Quaternion rot = Quaternion.AngleAxis(360f / count, Vector3.forward);
         float maxDist = 0f;
-        foreach (Agent a in flock) {
-            if (a == leader || a.curState != Agent.State.formation) {
+        foreach (Agent a in flockList) {
+            if (a== null || a == leader || a.curState != Agent.State.formation) {
                 continue;
             }
             radius = rot * radius;
@@ -95,8 +99,8 @@ public class Flock : MonoBehaviour {
         Agent leftmost = leader;
         Agent rightmost = leader;
         int dir = -1;
-        foreach (Agent a in flock) {
-            if (a == leader) {
+        foreach (Agent a in flockList) {
+            if (a==null || a == leader) {
                 continue;
             }
             if (dir < 0) {
@@ -117,8 +121,8 @@ public class Flock : MonoBehaviour {
     void CalculateLeaderSpeed() {
       
         float maxDist = 0f;
-        foreach (Agent a in flock) {
-            if (a == leader) {
+        foreach (Agent a in flockList) {
+            if (a==null || a == leader) {
                 continue;
             }
             if (a.flockDistance > maxDist) {
@@ -129,13 +133,13 @@ public class Flock : MonoBehaviour {
     }
 
     void BuildMultiLevel() {
-        int count = flock.Length;
+        int count = flockList.Count;
         Vector2 radius = leader.GetComponent<Agent>().GetForwardVector() * (count * separationDist / 2 * Mathf.PI);
         Vector2 center = (Vector2)leader.transform.position;
         Quaternion rot = Quaternion.AngleAxis(360f / count, Vector3.forward);
         float maxDist = 0f;
-        foreach (Agent a in flock) {
-            if (a == leader || a.curState != Agent.State.formation) {
+        foreach (Agent a in flockList) {
+            if (a==null || a == leader || a.curState != Agent.State.formation) {
                 continue;
             }
             radius = rot * radius;
@@ -144,5 +148,15 @@ public class Flock : MonoBehaviour {
                 maxDist = tmp;
             }
         }
+    }
+
+    public void RemoveAgent(Agent a) {
+        flockList.Remove(a);
+        if (a == leader) {
+            leader = flockList[0];
+            leader.SetState(Agent.State.path);
+            leader.StopAllCoroutines();
+        }
+        Updateformation();
     }
 }

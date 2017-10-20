@@ -266,4 +266,11 @@ public class Agent : MonoBehaviour {
     public void SetMaxSpeed(float s) {
         move_speed = s;
     }
+
+    private void OnDestroy() {
+        Flock f = GetComponentInParent<Flock>();
+        if (f != null) {
+            f.RemoveAgent(this);
+        }
+    }
 }
